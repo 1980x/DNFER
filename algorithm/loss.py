@@ -45,17 +45,16 @@ class DCE(nn.Module):
         avg_ref = torch.matmul(y_true.type(torch.float), avg)
         
 
-        pred = torch.where((pred_tmp >= avg_ref ), pred_tmp, torch.zeros_like(pred_tmp)) #confident
-        # confident_idx will tell us which examples are 'trustworthy' for the given batch
+        pred = torch.where((pred_tmp >= avg_ref ), pred_tmp, torch.zeros_like(pred_tmp))
         
-        confident_idx = torch.where(pred != 0.)[0]
-        noisy_idx = torch.where(pred == 0.)[0]
-        #print('confident idx ',confident_idx)
-        #print('noisy idx ',noisy_idx)
+        
+        conf_idx = torch.where(pred != 0.)[0]
+        #noise_idx = torch.where(pred == 0.)[0]
+        
           
         if len(confident_idx) != 0:
-            prun_targets = torch.argmax(torch.index_select(y_true, 0, confident_idx), dim=1)
-            weighted_loss = F.cross_entropy(torch.index_select(prediction, 0, confident_idx), 
+            prun_targets = torch.argmax(torch.index_select(y_true, 0, conf_idx), dim=1)
+            weighted_loss = F.cross_entropy(torch.index_select(prediction, 0, conf_idx), 
                             prun_targets, reduction=self.reduction)
         else:
             weighted_loss = F.cross_entropy(prediction, target_label)
