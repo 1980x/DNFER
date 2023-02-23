@@ -49,15 +49,15 @@ class DCE(nn.Module):
         
         
         conf_idx = torch.where(pred != 0.)[0]
-        #noise_idx = torch.where(pred == 0.)[0]
+        noise_idx = torch.where(pred == 0.)[0]
         
           
         if len(confident_idx) != 0:
             prun_targets = torch.argmax(torch.index_select(y_true, 0, conf_idx), dim=1)
-            weighted_loss = F.cross_entropy(torch.index_select(prediction, 0, conf_idx), 
+            weighted_loss = F.cross_entropy(torch.index_select(pred, 0, conf_idx), 
                             prun_targets, reduction=self.reduction)
         else:
-            weighted_loss = F.cross_entropy(prediction, target_label)
+            weighted_loss = F.cross_entropy(pred, target_label)
 
         return weighted_loss, confident_idx, noisy_idx , avg.reshape(-1)
 
